@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tu Huella Digital y Privacidad</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            width: 100vw;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .presentation-container {
+            background: white;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .slide {
+            padding: 1vh 3vw;
+            height: calc(100vh - 80px);
+            display: none;
+            position: relative;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        .slide.active {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .slide-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            max-height: 100%;
+            overflow: hidden;
+        }
+
+        .slide h1 {
+            color: #2c3e50;
+            font-size: clamp(1.5rem, 4vw, 3rem);
+            margin-bottom: 2vh;
+            font-weight: bold;
+        }
+
+        .slide h2 {
+            color: #34495e;
+            font-size: clamp(1.2rem, 3.5vw, 2.5rem);
+            margin-bottom: 1.5vh;
+            font-weight: 600;
+        }
+
+        .slide ul {
+            list-style: none;
+            max-width: 90vw;
+            margin: 0 auto;
+            text-align: left;
+            flex-shrink: 0;
+        }
+
+        .slide li {
+            font-size: clamp(0.8rem, 2vw, 1.4rem);
+            margin-bottom: 1vh;
+            padding: 1.5vh 2vw;
+            background: linear-gradient(90deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 10px;
+            border-left: 5px solid #3498db;
+            color: #2c3e50;
+            line-height: 1.3;
+        }
+
+        .slide li:nth-child(even) {
+            background: linear-gradient(90deg, #e8f5e8 0%, #d4edda 100%);
+            border-left-color: #27ae60;
+        }
+
+        .slide li:nth-child(3n) {
+            background: linear-gradient(90deg, #fff3cd 0%, #ffeaa7 100%);
+            border-left-color: #f39c12;
+        }
+
+        .image-container {
+            margin: 1vh auto;
+            text-align: center;
+            flex-shrink: 0;
+            max-height: 45vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .case-image {
+            max-width: 60vw;
+            max-height: 40vh;
+            width: auto;
+            height: auto;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border: 3px solid #3498db;
+            object-fit: contain;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .case-image:hover {
+            transform: scale(1.5);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            border-color: #2980b9;
+        }
+
+        .case-item {
+            background: #f8f9fa;
+            padding: 2vh 3vw;
+            border-radius: 15px;
+            border: 3px solid #dee2e6;
+            margin: 1vh auto;
+            max-width: 70vw;
+            flex-shrink: 0;
+        }
+
+        .case-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .safe {
+            border-color: #27ae60;
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+        }
+
+        .danger {
+            border-color: #e74c3c;
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+        }
+
+        .case-item h3 {
+            font-size: clamp(1rem, 2.5vw, 2rem);
+            margin-bottom: 1vh;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
+            padding: 2vh 3vw;
+            border-radius: 15px;
+            margin: 1vh auto;
+            border: 2px solid #3498db;
+            max-width: 70vw;
+            flex-shrink: 0;
+        }
+
+        .highlight h3 {
+            font-size: clamp(1rem, 2.5vw, 1.8rem);
+            margin-bottom: 1vh;
+        }
+
+        .highlight p {
+            font-size: clamp(0.8rem, 1.8vw, 1.3rem);
+            margin: 0.5vh 0;
+        }
+
+        .slide-counter {
+            position: absolute;
+            top: 2vh;
+            right: 3vw;
+            background: rgba(52, 73, 94, 0.1);
+            padding: 1vh 2vw;
+            border-radius: 25px;
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: clamp(0.8rem, 1.5vw, 1.2rem);
+        }
+
+        .navigation {
+            background: #34495e;
+            padding: 2vh 3vw;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 80px;
+            box-sizing: border-box;
+        }
+
+        .nav-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 1.5vh 3vw;
+            border-radius: 25px;
+            font-size: clamp(0.9rem, 1.8vw, 1.2rem);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 15vw;
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .nav-btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .progress-bar {
+            background: #ecf0f1;
+            height: 6px;
+            border-radius: 3px;
+            overflow: hidden;
+            flex-grow: 1;
+            margin: 0 20px;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #3498db 0%, #2ecc71 100%);
+            height: 100%;
+            transition: width 0.3s ease;
+            border-radius: 3px;
+        }
+
+        .video-link {
+            display: inline-block;
+            background: #e74c3c;
+            color: white;
+            padding: 2vh 4vw;
+            border-radius: 50px;
+            text-decoration: none;
+            font-size: clamp(1rem, 2.2vw, 1.5rem);
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin: 2vh 0;
+        }
+
+        .video-link:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        .emoji {
+            font-size: clamp(1.2rem, 2.5vw, 2.2rem);
+            margin-right: 1vw;
+        }
+
+        @media (max-width: 768px) {
+            .case-image {
+                max-width: 80vw;
+                max-height: 25vh;
+            }
+            
+            .nav-btn {
+                min-width: 20vw;
+                padding: 1vh 2vw;
+            }
+        }
+
+        @media (orientation: landscape) and (max-height: 600px) {
+            .slide li {
+                margin-bottom: 0.8vh;
+                padding: 1vh 2vw;
+            }
+            
+            .image-container {
+                max-height: 20vh;
+            }
+            
+            .case-image {
+                max-height: 15vh;
+            }
+            
+            .highlight {
+                padding: 1vh 2vw;
+            }
+            
+            .case-item {
+                padding: 1vh 2vw;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <div class="slide-counter">
+            <span id="slideNumber">1</span> / 22
+        </div>
+
+        <!-- Slide 1 -->
+        <div class="slide active">
+            <div class="slide-content">
+                <h1>🔒 TU HUELLA DIGITAL Y PRIVACIDAD 101</h1>
+                <ul>
+                    <li>📱 Todo lo que hacés en internet deja una marca</li>
+                    <li>🛡️ Hoy vas a aprender a proteger tu información</li>
+                    <li>👀 ¿Sabés que hasta tus fotos "privadas" pueden ser vistas?</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 2 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>🦶 ¿QUÉ ES TU HUELLA DIGITAL?</h2>
+                <ul>
+                    <li>Son todas las marcas que dejás cuando usás internet</li>
+                    <li>📸 Fotos, comentarios, likes, lugares que visitás</li>
+                    <li>🏖️ Es como las huellas de tus pies en la arena</li>
+                    <li>⚠️ La diferencia: estas huellas NUNCA se borran</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 3 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>🚫 INFORMACIÓN QUE NUNCA DEBÉS COMPARTIR</h2>
+                <ul>
+                    <li>📝 Tu nombre completo, dirección o teléfono</li>
+                    <li>🆔 Fotos de tu documento o tarjetas</li>
+                    <li>🏠 Dónde vivís, estudiás o vas a estar</li>
+                    <li>🔐 Contraseñas (¡obvio!)</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 4 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>🚦 EL SEMÁFORO DE PUBLICACIONES</h2>
+                <ul>
+                    <li><span class="emoji">🟢</span>VERDE: Seguro para publicar</li>
+                    <li><span class="emoji">🟡</span>AMARILLO: Dudoso, pensalo mejor</li>
+                    <li><span class="emoji">🔴</span>ROJO: Peligroso, NO publiques</li>
+                    <li>💭 Siempre preguntate: "¿Esto es seguro?"</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 5 - CASO 1 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>🤔 CASO 1: ¿QUÉ HARÍAS?</h2>
+                <div class="image-container">
+                    <img src="images/image1.png" alt="Foto grupal en el parque" class="case-image" onclick="openImageInNewTab(this.src)">
+                </div>
+                <div class="highlight">
+                    <h3>📸 Foto grupal en el parque</h3>
+                    <p>🟢 SEGURO • 🟡 DUDOSO • 🔴 PELIGROSO</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6 - RESPUESTA CASO 1 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>✅ RESPUESTA CASO 1</h2>
+                <div class="case-item safe">
+                    <h3>🟢 SEGURO PUBLICAR</h3>
+                    <ul style="text-align: left; max-width: 100%; margin: 0;">
+                        <li>No muestra información personal</li>
+                        <li>No revela ubicación específica</li>
+                        <li>Es solo una foto de amigos divirtiéndose</li>
+                        <li>✅ Recordá pedir permiso a todos los de la foto</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7 - CASO 2 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>🤔 CASO 2: ¿QUÉ HARÍAS?</h2>
+                <div class="image-container">
+                    <img src="images/image2.png" alt="Screenshot conversación privada" class="case-image">
+                </div>
+                <div class="highlight">
+                    <h3>💬 Screenshot de conversación privada</h3>
+                    <p>🟢 SEGURO • 🟡 DUDOSO • 🔴 PELIGROSO</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8 - RESPUESTA CASO 2 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>❌ RESPUESTA CASO 2</h2>
+                <div class="case-item danger">
+                    <h3>🔴 PELIGROSO COMPARTIR</h3>
+                    <ul style="text-align: left; max-width: 100%; margin: 0;">
+                        <li>Las conversaciones son PRIVADAS</li>
+                        <li>No tenés permiso para compartir</li>
+                        <li>Podés perder la confianza de tu amigo</li>
+                        <li>⚠️ Regla: "Lo que queda entre nosotros, queda entre nosotros"</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9 - CASO 3 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>🤔 CASO 3: ¿QUÉ HARÍAS?</h2>
+                <div class="image-container">
+                    <img src="images/image3.png" alt="Foto de mascota en jardín" class="case-image">
+                </div>
+                <div class="highlight">
+                    <h3>🐕 Foto de tu mascota jugando</h3>
+                    <p>🟢 SEGURO • 🟡 DUDOSO • 🔴 PELIGROSO</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10 - RESPUESTA CASO 3 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>✅ RESPUESTA CASO 3</h2>
+                <div class="case-item safe">
+                    <h3>🟢 SEGURO PUBLICAR</h3>
+                    <ul style="text-align: left; max-width: 100%; margin: 0;">
+                        <li>Las mascotas son adorables de compartir</li>
+                        <li>No muestra tu cara ni datos personales</li>
+                        <li>El jardín no revela información específica</li>
+                        <li>✅ ¡A todos les gustan las fotos de animalitos!</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11 - CASO 4 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>🤔 CASO 4: ¿QUÉ HARÍAS?</h2>
+                <div class="image-container">
+                    <img src="images/image4.png" alt="Video con dirección" class="case-image">
+                </div>
+                <div class="highlight">
+                    <h3>📹 Video para invitar amigos</h3>
+                    <p>"Nos vemos mañana en mi casa, Av. Santa Fe 1234"</p>
+                    <p>🟢 SEGURO • 🟡 DUDOSO • 🔴 PELIGROSO</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12 - RESPUESTA CASO 4 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>❌ RESPUESTA CASO 4</h2>
+                <div class="case-item danger">
+                    <h3>🔴 MUY PELIGROSO</h3>
+                    <ul style="text-align: left; max-width: 100%; margin: 0;">
+                        <li>NUNCA compartas tu dirección completa</li>
+                        <li>Los extraños pueden saber dónde vivís</li>
+                        <li>Podrían ir a tu casa cuando no estés</li>
+                        <li>⚠️ Mejor: mandá mensaje privado a tus amigos</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13 - CASO 5 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>🤔 CASO 5: ¿QUÉ HARÍAS?</h2>
+                <div class="image-container">
+                    <img src="images/image5.png" alt="Selfie con DNI" class="case-image">
+                </div>
+                <div class="highlight">
+                    <h3>🤳 Selfie con tu DNI nuevo</h3>
+                    <p>🟢 SEGURO • 🟡 DUDOSO • 🔴 PELIGROSO</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14 - RESPUESTA CASO 5 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>❌ RESPUESTA CASO 5</h2>
+                <div class="case-item danger">
+                    <h3>🔴 MUY PELIGROSO</h3>
+                    <ul style="text-align: left; max-width: 100%; margin: 0;">
+                        <li>Tu DNI tiene TODOS tus datos personales</li>
+                        <li>Nombre completo, número, dirección</li>
+                        <li>Los delincuentes pueden robar tu identidad</li>
+                        <li>⚠️ NUNCA muestres documentos en redes</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 15 - CASO 6 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>🤔 CASO 6: ¿QUÉ HARÍAS?</h2>
+                <div class="image-container">
+                    <img src="images/image6.png" alt="Foto jugando fútbol" class="case-image">
+                </div>
+                <div class="highlight">
+                    <h3>⚽ Foto jugando fútbol en el patio</h3>
+                    <p>🟢 SEGURO • 🟡 DUDOSO • 🔴 PELIGROSO</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 16 - RESPUESTA CASO 6 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>✅ RESPUESTA CASO 6</h2>
+                <div class="case-item safe">
+                    <h3>🟢 SEGURO PUBLICAR</h3>
+                    <ul style="text-align: left; max-width: 100%; margin: 0;">
+                        <li>Solo muestra una actividad deportiva</li>
+                        <li>No se ve el nombre del colegio</li>
+                        <li>No hay información personal visible</li>
+                        <li>✅ ¡Es bueno mostrar que hacés deporte!</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 17 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>📋 TU CHECKLIST ANTES DE PUBLICAR</h2>
+                <ul>
+                    <li>🔍 ¿Se ve información personal mía?</li>
+                    <li>🕵️ ¿Un extraño podría encontrarme con esto?</li>
+                    <li>👨‍👩‍👧‍👦 ¿Mis padres estarían contentos?</li>
+                    <li>🙋 ¿Le pedí permiso a las personas de la foto?</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 18 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>📊 ¿SABÍAS QUE...?</h2>
+                <ul>
+                    <li>👻 Los extraños pueden ver tus publicaciones aunque creas que no</li>
+                    <li>♻️ Lo que borrás de internet puede quedar guardado para siempre</li>
+                    <li>📈 Cada día 175.000 chicos conocen internet por primera vez</li>
+                    <li>😢 1 de cada 5 chicos sufre cyberbullying</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 19 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>🎬 VIDEO: "NO SEAS ESTRELLA"</h2>
+                <div class="highlight">
+                    <p>Miremos este video de UNICEF</p>
+                    <a href="https://www.youtube.com/watch?app=desktop&v=hBdLUAGW144&utm_source=chatgpt.com" 
+                       class="video-link" target="_blank">▶️ Ver Video</a>
+                </div>
+                <ul>
+                    <li>🤔 Pensá: ¿te sentirías cómodo en esa situación?</li>
+                    <li>🕵️ ¿De dónde sacaron toda esa información?</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 20 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>👑 REGLAS DE ORO</h2>
+                <ul>
+                    <li>❓ Si tenés dudas, NO publiques</li>
+                    <li>🏷️ Pensá antes de etiquetar a tus amigos</li>
+                    <li>🔒 Configurá tus cuentas como privadas</li>
+                    <li>🗣️ Hablá con un adulto si algo te parece raro</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 21 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>🎥 VIDEO: PRIVACIDAD EN REDES SOCIALES</h2>
+                <div class="highlight">
+                    <a href="https://www.youtube.com/watch?v=_VAgyuNjnoY&list=PL7886F50C2618522B&index=1" 
+                       class="video-link" target="_blank">▶️ Ver Video de PantallasAmigas</a>
+                </div>
+                <ul>
+                    <li>🎯 ¿Qué trucos nuevos aprendiste para proteger tu información?</li>
+                    <li>🤓 ¿Conocías estos consejos antes del video?</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 22 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>🤝 COMPROMISO FINAL</h2>
+                <ul>
+                    <li>💭 Desde hoy, antes de publicar preguntate: "¿Esto es seguro?"</li>
+                    <li>👫 Ayudá a tus amigos a proteger su privacidad también</li>
+                    <li>🔐 Recordá: tu vida privada debe ser PRIVADA</li>
+                </ul>
+                <div class="highlight">
+                    <h3>🎉 ¡Felicitaciones!</h3>
+                    <p>Ya sabés cómo proteger tu huella digital</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">⬅️ Anterior</button>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar"></div>
+            </div>
+            <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">Siguiente ➡️</button>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 22;
+
+        function updateSlide() {
+            const slides = document.querySelectorAll('.slide');
+            slides.forEach(slide => slide.classList.remove('active'));
+            
+            slides[currentSlide - 1].classList.add('active');
+            
+            document.getElementById('slideNumber').textContent = currentSlide;
+            
+            const progress = (currentSlide / totalSlides) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            
+            document.getElementById('prevBtn').disabled = currentSlide === 1;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+            
+            if (currentSlide === totalSlides) {
+                document.getElementById('nextBtn').textContent = '🎉 Fin';
+            } else {
+                document.getElementById('nextBtn').textContent = 'Siguiente ➡️';
+            }
+        }
+
+        function changeSlide(direction) {
+            const newSlide = currentSlide + direction;
+            if (newSlide >= 1 && newSlide <= totalSlides) {
+                currentSlide = newSlide;
+                updateSlide();
+            }
+        }
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (event.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+
+        updateSlide();
+    </script>
+</body>
+</html>
