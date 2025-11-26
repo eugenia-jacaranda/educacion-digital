@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manejo de Dispositivos Propios y Juegos en Línea</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            width: 100vw;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .presentation-container {
+            background: white;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .slide {
+            padding: 1vh 3vw;
+            height: calc(100vh - 80px);
+            display: none;
+            position: relative;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        .slide.active {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .slide-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            max-height: 100%;
+            overflow: hidden;
+        }
+
+        .slide h1 {
+            color: #2c3e50;
+            font-size: clamp(1.5rem, 4vw, 3rem);
+            margin-bottom: 2vh;
+            font-weight: bold;
+        }
+
+        .slide h2 {
+            color: #34495e;
+            font-size: clamp(1.2rem, 3.5vw, 2.5rem);
+            margin-bottom: 1.5vh;
+            font-weight: 600;
+        }
+
+        .slide ul {
+            list-style: none;
+            max-width: 90vw;
+            margin: 0 auto;
+            text-align: left;
+            flex-shrink: 0;
+        }
+
+        .slide li {
+            font-size: clamp(0.8rem, 2vw, 1.4rem);
+            margin-bottom: 1vh;
+            padding: 1.5vh 2vw;
+            background: linear-gradient(90deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 10px;
+            border-left: 5px solid #3498db;
+            color: #2c3e50;
+            line-height: 1.3;
+        }
+
+        .slide li:nth-child(even) {
+            background: linear-gradient(90deg, #e8f5e8 0%, #d4edda 100%);
+            border-left-color: #27ae60;
+        }
+
+        .slide li:nth-child(3n) {
+            background: linear-gradient(90deg, #fff3cd 0%, #ffeaa7 100%);
+            border-left-color: #f39c12;
+        }
+
+        .image-container {
+            margin: 1vh auto;
+            text-align: center;
+            flex-shrink: 0;
+            max-height: 45vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .case-image {
+            max-width: 60vw;
+            max-height: 40vh;
+            width: auto;
+            height: auto;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border: 3px solid #3498db;
+            object-fit: contain;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .case-image:hover {
+            transform: scale(1.5);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            border-color: #2980b9;
+        }
+
+        .case-item {
+            background: #f8f9fa;
+            padding: 2vh 3vw;
+            border-radius: 15px;
+            border: 3px solid #dee2e6;
+            margin: 1vh auto;
+            max-width: 70vw;
+            flex-shrink: 0;
+        }
+
+        .case-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .safe {
+            border-color: #27ae60;
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+        }
+
+        .danger {
+            border-color: #e74c3c;
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+        }
+
+        .warning {
+            border-color: #f39c12;
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+        }
+
+        .case-item h3 {
+            font-size: clamp(1rem, 2.5vw, 2rem);
+            margin-bottom: 1vh;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
+            padding: 2vh 3vw;
+            border-radius: 15px;
+            margin: 1vh auto;
+            border: 2px solid #3498db;
+            max-width: 70vw;
+            flex-shrink: 0;
+        }
+
+        .highlight h3 {
+            font-size: clamp(1rem, 2.5vw, 1.8rem);
+            margin-bottom: 1vh;
+        }
+
+        .highlight p {
+            font-size: clamp(0.8rem, 1.8vw, 1.3rem);
+            margin: 0.5vh 0;
+        }
+
+        .slide-counter {
+            position: absolute;
+            top: 2vh;
+            right: 3vw;
+            background: rgba(52, 73, 94, 0.1);
+            padding: 1vh 2vw;
+            border-radius: 25px;
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: clamp(0.8rem, 1.5vw, 1.2rem);
+        }
+
+        .navigation {
+            background: #34495e;
+            padding: 2vh 3vw;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 80px;
+            box-sizing: border-box;
+        }
+
+        .nav-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 1.5vh 3vw;
+            border-radius: 25px;
+            font-size: clamp(0.9rem, 1.8vw, 1.2rem);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 15vw;
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .nav-btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .progress-bar {
+            background: #ecf0f1;
+            height: 6px;
+            border-radius: 3px;
+            overflow: hidden;
+            flex-grow: 1;
+            margin: 0 20px;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #3498db 0%, #2ecc71 100%);
+            height: 100%;
+            transition: width 0.3s ease;
+            border-radius: 3px;
+        }
+
+        .video-link {
+            display: inline-block;
+            background: #e74c3c;
+            color: white;
+            padding: 2vh 4vw;
+            border-radius: 50px;
+            text-decoration: none;
+            font-size: clamp(1rem, 2.2vw, 1.5rem);
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin: 2vh 0;
+        }
+
+        .video-link:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        .emoji {
+            font-size: clamp(1.2rem, 2.5vw, 2.2rem);
+            margin-right: 1vw;
+        }
+
+        .device-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2vw;
+            max-width: 85vw;
+            margin: 2vh auto;
+        }
+
+        .device-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 2vh 2vw;
+            border-radius: 15px;
+            border: 3px solid #3498db;
+            text-align: center;
+        }
+
+        .device-card h3 {
+            font-size: clamp(1rem, 2vw, 1.5rem);
+            margin-bottom: 1vh;
+        }
+
+        @media (max-width: 768px) {
+            .case-image {
+                max-width: 80vw;
+                max-height: 25vh;
+            }
+            
+            .nav-btn {
+                min-width: 20vw;
+                padding: 1vh 2vw;
+            }
+
+            .device-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (orientation: landscape) and (max-height: 600px) {
+            .slide li {
+                margin-bottom: 0.8vh;
+                padding: 1vh 2vw;
+            }
+            
+            .image-container {
+                max-height: 20vh;
+            }
+            
+            .case-image {
+                max-height: 15vh;
+            }
+            
+            .highlight {
+                padding: 1vh 2vw;
+            }
+            
+            .case-item {
+                padding: 1vh 2vw;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <div class="slide-counter">
+            <span id="slideNumber">1</span> / 21
+        </div>
+
+        <!-- Slide 1 -->
+        <div class="slide active">
+            <div class="slide-content">
+                <h1>📱 MANEJO DE DISPOSITIVOS PROPIOS Y JUEGOS EN LÍNEA</h1>
+                <ul>
+                    <li>💻 Aprender a usar tus dispositivos de forma segura</li>
+                    <li>🎮 Cómo jugar en línea sin riesgos</li>
+                    <li>🛡️ Proteger tu información y tu privacidad</li>
+                    <li>⏰ Usar el tiempo de forma equilibrada</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 2 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>📱 ¿QUÉ DISPOSITIVOS PODÉS TENER?</h2>
+                <div class="device-grid">
+                    <div class="device-card">
+                        <h3>📱 Celular</h3>
+                        <p style="font-size: clamp(0.7rem, 1.5vw, 1rem);">Para llamar y mensajear</p>
+                    </div>
+                    <div class="device-card">
+                        <h3>💻 Tablet</h3>
+                        <p style="font-size: clamp(0.7rem, 1.5vw, 1rem);">Para estudiar y jugar</p>
+                    </div>
+                    <div class="device-card">
+                        <h3>🖥️ Computadora</h3>
+                        <p style="font-size: clamp(0.7rem, 1.5vw, 1rem);">Para tareas y juegos</p>
+                    </div>
+                    <div class="device-card">
+                        <h3>🎮 Consola</h3>
+                        <p style="font-size: clamp(0.7rem, 1.5vw, 1rem);">Para videojuegos</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>🔒 CUIDADOS BÁSICOS DE TUS DISPOSITIVOS</h2>
+                <ul>
+                    <li>💧 No mojarlos ni dejarlos cerca del agua</li>
+                    <li>📱 Usar fundas protectoras</li>
+                    <li>🔋 Cargarlos correctamente</li>
+                    <li>🧹 Mantenerlos limpios</li>
+                    <li>👨‍👩‍👧‍👦 Pedir ayuda a adultos si algo no funciona</li>
+                    <li>🔐 No compartir contraseñas con nadie</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 4 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>🤔 CASO 1: ¿QUÉ HARÍAS?</h2>
+                <div class="image-container">
+                    <img src="images/image1.png" alt="Dispositivo mojado" class="case-image" onclick="openImageInNewTab(this.src)" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div style="display:none; flex-direction: column; align-items: center; justify-content: center; padding: 3vh 4vw; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 15px; border: 3px solid #3498db; max-width: 60vw; min-height: 30vh;">
+                        <p style="font-size: clamp(3rem, 6vw, 5rem); margin: 0;">💧</p>
+                        <p style="font-size: clamp(1rem, 2vw, 1.5rem); margin-top: 1vh; font-weight: bold;">Dispositivo mojado</p>
+                    </div>
+                </div>
+                <div class="highlight">
+                    <h3>💧 Situación:</h3>
+                    <p>Se te cayó agua sobre tu tablet mientras la usabas</p>
+                    <p>¿Qué hacés?</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>✅ RESPUESTA CORRECTA: CASO 1</h2>
+                <div class="case-item safe">
+                    <h3>🟢 LO QUE DEBÉS HACER:</h3>
+                    <ul style="text-align: left; max-width: 100%; margin: 0;">
+                        <li>1. Apagarlo inmediatamente</li>
+                        <li>2. Secarlo con una toalla suave</li>
+                        <li>3. Contarle a un adulto lo que pasó</li>
+                        <li>4. NO intentar encenderlo hasta que esté seco</li>
+                        <li>5. Dejarlo secar al menos 24 horas</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>🎮 ¿QUÉ SON LOS JUEGOS EN LÍNEA?</h2>
+                <ul>
+                    <li>🎯 Son juegos que jugás conectado a internet</li>
+                    <li>👥 Podés jugar con otras personas</li>
+                    <li>🌐 Necesitás internet para jugarlos</li>
+                    <li>💡 Algunos son educativos, otros son solo para divertirse</li>
+                    <li>⚠️ Algunos pueden tener riesgos si no los usás bien</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 7 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>🟢 JUEGOS SEGUROS PARA TU EDAD</h2>
+                <div class="case-item safe">
+                    <h3>✅ JUEGOS APROPIADOS:</h3>
+                    <ul style="text-align: left; max-width: 100%; margin: 0;">
+                        <li>🎮 Juegos educativos (matemáticas, lectura)</li>
+                        <li>🧩 Puzzles y rompecabezas</li>
+                        <li>🎨 Juegos de creatividad</li>
+                        <li>🏃 Juegos de movimiento</li>
+                        <li>📚 Juegos que te enseñan cosas</li>
+                        <li>✅ Siempre con supervisión de adultos</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>🔴 JUEGOS QUE DEBÉS EVITAR</h2>
+                <div class="case-item danger">
+                    <h3>❌ JUEGOS PELIGROSOS:</h3>
+                    <ul style="text-align: left; max-width: 100%; margin: 0;">
+                        <li>❌ Juegos con violencia</li>
+                        <li>❌ Juegos para adultos</li>
+                        <li>❌ Juegos que piden información personal</li>
+                        <li>❌ Juegos que te piden dinero</li>
+                        <li>❌ Juegos donde hablás con desconocidos</li>
+                        <li>⚠️ Si no estás seguro, preguntale a un adulto</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>🤔 CASO 2: ¿QUÉ HARÍAS?</h2>
+                <div class="image-container">
+                    <img src="images/image2.png" alt="Solicitud de amistad en juego" class="case-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div style="display:none; flex-direction: column; align-items: center; justify-content: center; padding: 3vh 4vw; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 15px; border: 3px solid #3498db; max-width: 60vw; min-height: 30vh;">
+                        <p style="font-size: clamp(3rem, 6vw, 5rem); margin: 0;">👤</p>
+                        <p style="font-size: clamp(1rem, 2vw, 1.5rem); margin-top: 1vh; font-weight: bold;">Solicitud de amistad</p>
+                    </div>
+                </div>
+                <div class="highlight">
+                    <h3>🎮 Situación:</h3>
+                    <p>Mientras jugás en línea, un desconocido te pide ser tu amigo</p>
+                    <p>Te dice que tiene 10 años como vos</p>
+                    <p>¿Qué hacés?</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>✅ RESPUESTA CORRECTA: CASO 2</h2>
+                <div class="case-item danger">
+                    <h3>🔴 NO ACEPTAR</h3>
+                    <ul style="text-align: left; max-width: 100%; margin: 0;">
+                        <li>Nunca aceptes solicitudes de desconocidos</li>
+                        <li>No sabés quién está realmente del otro lado</li>
+                        <li>Podría ser un adulto haciéndose pasar por niño</li>
+                        <li>Bloqueá a esa persona</li>
+                        <li>⚠️ Contale inmediatamente a un adulto</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>⏰ ¿CUÁNTO TIEMPO JUGAR?</h2>
+                <div class="case-item warning">
+                    <h3>⏱️ TIEMPO RECOMENDADO:</h3>
+                    <ul style="text-align: left; max-width: 100%; margin: 0;">
+                        <li>📅 Entre semana: máximo 1 hora por día</li>
+                        <li>🎉 Fines de semana: máximo 2 horas por día</li>
+                        <li>📚 Primero hacer la tarea</li>
+                        <li>🏃 Después de jugar afuera o hacer ejercicio</li>
+                        <li>❌ NO jugar antes de dormir</li>
+                        <li>💡 Usar un reloj o temporizador</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>🤔 CASO 3: ¿QUÉ HARÍAS?</h2>
+                <div class="image-container">
+                    <img src="images/image3.png" alt="Juego pidiendo información" class="case-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div style="display:none; flex-direction: column; align-items: center; justify-content: center; padding: 3vh 4vw; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 15px; border: 3px solid #3498db; max-width: 60vw; min-height: 30vh;">
+                        <p style="font-size: clamp(3rem, 6vw, 5rem); margin: 0;">📝</p>
+                        <p style="font-size: clamp(1rem, 2vw, 1.5rem); margin-top: 1vh; font-weight: bold;">Juego pidiendo datos</p>
+                    </div>
+                </div>
+                <div class="highlight">
+                    <h3>⚠️ Situación:</h3>
+                    <p>Un juego te pide que ingreses tu nombre completo, dirección y teléfono</p>
+                    <p>Te dice que es para ganar un premio</p>
+                    <p>¿Qué hacés?</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>❌ RESPUESTA CORRECTA: CASO 3</h2>
+                <div class="case-item danger">
+                    <h3>🔴 NUNCA DAR INFORMACIÓN PERSONAL</h3>
+                    <ul style="text-align: left; max-width: 100%; margin: 0;">
+                        <li>Los juegos NUNCA deberían pedir tu información personal</li>
+                        <li>Es una trampa para robar tus datos</li>
+                        <li>Cerrá el juego inmediatamente</li>
+                        <li>⚠️ Contale a un adulto lo que pasó</li>
+                        <li>💡 Regla de oro: Nunca compartas datos personales en juegos</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>🛡️ REGLAS DE ORO PARA JUGAR EN LÍNEA</h2>
+                <ul>
+                    <li>👥 Solo jugar con amigos que conocés en la vida real</li>
+                    <li>🔒 No compartir información personal</li>
+                    <li>⏰ Respetar los tiempos acordados</li>
+                    <li>🗣️ Contar a adultos si algo te parece raro</li>
+                    <li>🚫 No comprar cosas sin permiso de adultos</li>
+                    <li>💡 Recordar: los juegos son para divertirse, no para todo el día</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 15 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>📱 CUIDAR TUS DISPOSITIVOS</h2>
+                <div class="case-item safe">
+                    <h3>✅ CONSEJOS IMPORTANTES:</h3>
+                    <ul style="text-align: left; max-width: 100%; margin: 0;">
+                        <li>🔐 Usar contraseñas seguras (no tu nombre o cumpleaños)</li>
+                        <li>📱 No prestar tu dispositivo a desconocidos</li>
+                        <li>🔄 Actualizar el dispositivo cuando te lo pida</li>
+                        <li>💾 Guardar tus trabajos importantes</li>
+                        <li>🧹 Limpiar la pantalla con cuidado</li>
+                        <li>👨‍👩‍👧‍👦 Pedir ayuda cuando no sepas algo</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 16 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>🤔 CASO 4: ¿QUÉ HARÍAS?</h2>
+                <div class="image-container">
+                    <img src="images/image4.png" alt="Dispositivo con virus" class="case-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div style="display:none; flex-direction: column; align-items: center; justify-content: center; padding: 3vh 4vw; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 15px; border: 3px solid #3498db; max-width: 60vw; min-height: 30vh;">
+                        <p style="font-size: clamp(3rem, 6vw, 5rem); margin: 0;">⚠️</p>
+                        <p style="font-size: clamp(1rem, 2vw, 1.5rem); margin-top: 1vh; font-weight: bold;">Mensaje sospechoso</p>
+                    </div>
+                </div>
+                <div class="highlight">
+                    <h3>⚠️ Situación:</h3>
+                    <p>Tu computadora muestra un mensaje raro</p>
+                    <p>Te dice que ganaste un premio y que hagas clic</p>
+                    <p>¿Qué hacés?</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 17 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>✅ RESPUESTA CORRECTA: CASO 4</h2>
+                <div class="case-item danger">
+                    <h3>🔴 NO HACER CLIC</h3>
+                    <ul style="text-align: left; max-width: 100%; margin: 0;">
+                        <li>Los mensajes de "premios" son casi siempre mentira</li>
+                        <li>Pueden tener virus o robar información</li>
+                        <li>NO hagas clic en nada</li>
+                        <li>Cerrá la ventana</li>
+                        <li>⚠️ Contale inmediatamente a un adulto</li>
+                        <li>💡 Si algo parece demasiado bueno para ser verdad, probablemente lo sea</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 18 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>🤔 CASO 5: ¿QUÉ HARÍAS?</h2>
+                <div class="image-container">
+                    <img src="images/image5.png" alt="Chat en juego" class="case-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <div style="display:none; padding: 3vh 4vw; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 15px; border: 3px solid #3498db; max-width: 60vw;">
+                        <p style="font-size: clamp(1.5rem, 3vw, 2.5rem); margin: 0;">💬</p>
+                        <p style="font-size: clamp(0.9rem, 2vw, 1.3rem); margin-top: 1vh;">Chat en juego</p>
+                    </div>
+                </div>
+                <div class="highlight">
+                    <h3>💬 Situación:</h3>
+                    <p>Un juego te pregunta si querés habilitar el chat para hablar con otros jugadores</p>
+                    <p>Te dice que es más divertido jugar con chat</p>
+                    <p>¿Qué hacés?</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 19 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>✅ RESPUESTA CORRECTA: CASO 5</h2>
+                <div class="case-item danger">
+                    <h3>🔴 NO HABILITAR EL CHAT</h3>
+                    <ul style="text-align: left; max-width: 100%; margin: 0;">
+                        <li>Los chats en juegos pueden ser peligrosos</li>
+                        <li>No sabés quién está del otro lado</li>
+                        <li>Pueden ser adultos haciéndose pasar por niños</li>
+                        <li>Nunca habilitar chats con desconocidos</li>
+                        <li>⚠️ Si el juego requiere chat, mejor no jugarlo</li>
+                        <li>💡 Regla de oro: NO chatear con desconocidos en juegos</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 20 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2 style="font-size: clamp(1rem, 2.5vw, 2rem); margin-bottom: 1vh;">🌟 RECOMENDACIÓN: SCRATCH</h2>
+                <div class="case-item safe" style="padding: 1.5vh 2.5vw; margin: 0.5vh auto;">
+                    <h3 style="font-size: clamp(0.9rem, 2vw, 1.5rem); margin-bottom: 0.5vh;">✅ SCRATCH: PLATAFORMA SEGURA Y SUPERVISADA</h3>
+                    <ul style="text-align: left; max-width: 100%; margin: 0.5vh 0 0 0; font-size: clamp(0.7rem, 1.5vw, 1rem); padding-left: 1vw;">
+                        <li style="margin-bottom: 0.4vh; padding: 0.4vh 0;">🎨 Scratch es una plataforma educativa para programar</li>
+                        <li style="margin-bottom: 0.4vh; padding: 0.4vh 0;">🛡️ Está supervisada por adultos responsables</li>
+                        <li style="margin-bottom: 0.4vh; padding: 0.4vh 0;">✅ Todos los proyectos y comentarios son revisados</li>
+                        <li style="margin-bottom: 0.4vh; padding: 0.4vh 0;">👥 Podés compartir tus creaciones de forma segura</li>
+                        <li style="margin-bottom: 0.4vh; padding: 0.4vh 0;">📚 Es perfecto para aprender mientras jugás</li>
+                        <li style="margin-bottom: 0.4vh; padding: 0.4vh 0;">🔒 Es una plataforma confiable para chicos de tu edad</li>
+                    </ul>
+                </div>
+                <div class="highlight" style="margin-top: 1vh; padding: 1vh 2vw;">
+                    <p style="font-size: clamp(0.75rem, 1.5vw, 1rem); margin: 0.3vh 0;">💡 Scratch es una excelente opción para crear y aprender de forma segura</p>
+                    <p style="font-size: clamp(0.75rem, 1.5vw, 1rem); margin: 0.3vh 0;">🌐 Podés visitarlo en: scratch.mit.edu</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 21 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>🎉 COMPROMISO FINAL</h2>
+                <ul>
+                    <li>📱 Voy a cuidar mis dispositivos</li>
+                    <li>🎮 Voy a jugar solo juegos apropiados para mi edad</li>
+                    <li>⏰ Voy a respetar los tiempos de juego</li>
+                    <li>🔒 No voy a compartir información personal</li>
+                    <li>💬 NO voy a habilitar chats con desconocidos</li>
+                    <li>🗣️ Voy a pedir ayuda cuando algo me parezca raro</li>
+                </ul>
+                <div class="highlight">
+                    <h3>🌟 ¡Felicitaciones!</h3>
+                    <p>Ya sabés cómo usar tus dispositivos y jugar en línea de forma segura</p>
+                    <p>Recordá: la tecnología es una herramienta, usala con cuidado</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">⬅️ Anterior</button>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar"></div>
+            </div>
+            <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">Siguiente ➡️</button>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 21;
+
+        function updateSlide() {
+            const slides = document.querySelectorAll('.slide');
+            slides.forEach(slide => slide.classList.remove('active'));
+            
+            slides[currentSlide - 1].classList.add('active');
+            
+            document.getElementById('slideNumber').textContent = currentSlide;
+            
+            const progress = (currentSlide / totalSlides) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            
+            document.getElementById('prevBtn').disabled = currentSlide === 1;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+            
+            if (currentSlide === totalSlides) {
+                document.getElementById('nextBtn').textContent = '🎉 Fin';
+            } else {
+                document.getElementById('nextBtn').textContent = 'Siguiente ➡️';
+            }
+        }
+
+        function changeSlide(direction) {
+            const newSlide = currentSlide + direction;
+            if (newSlide >= 1 && newSlide <= totalSlides) {
+                currentSlide = newSlide;
+                updateSlide();
+            }
+        }
+
+        function openImageInNewTab(src) {
+            window.open(src, '_blank');
+        }
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (event.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+
+        updateSlide();
+    </script>
+</body>
+</html>
+
